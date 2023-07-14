@@ -1091,7 +1091,7 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
                 new_grad_tensor = self.__ipg_bucket_flat_buffer.narrow(0, self.elements_in_ipg_bucket,
                                                                        param.grad.numel()).view_as(param.grad)
                 new_grad_tensor.copy_(param.grad, non_blocking=True)
-                param.grad.record_stream(get_accelerator().current_stream())
+                # param.grad.record_stream(get_accelerator().current_stream())
                 param.grad.data = new_grad_tensor
 
         self.params_in_ipg_bucket.append(param)
@@ -1218,7 +1218,7 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
         norm = None
         for part in input.view(-1).split(buffer_size):
             if norm is None:
-                norm = part.data.double().norm(2)**2.0
+                norm = part.data.norm(2)**2.0
             else:
                 norm += part.data.double().norm(2)**2.0
         return norm**0.5
@@ -1248,7 +1248,7 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
                     total_norm += param_norm.item()**2
 
         # Sum across all model parallel GPUs.
-        total_norm_cuda = get_accelerator().FloatTensor([float(total_norm)])
+        total_norm_cuda = torch.FloatTensor([float(total_norm)]).to('musa')
 
         dist.all_reduce(total_norm_cuda, op=dist.ReduceOp.SUM, group=self.dp_process_group)
 
@@ -1316,7 +1316,7 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
                         fp32_grad_tensor.copy_(grad_buffer)
 
             # free the gradient
-            param.grad.record_stream(get_accelerator().current_stream())
+            # param.grad.record_stream(get_accelerator().current_stream())
             param.grad = None
 
         if self.offload_optimizer and self.swap_optimizer:
@@ -1560,7 +1560,8 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
             grad_norms = []
             for g, p in zip(gradients, params):
                 if is_model_parallel_parameter(p) or (self.model_parallel_rank == 0):
-                    grad_norms.append(g.to(get_accelerator().device_name(), non_blocking=True).double().norm(2))
+                    grad_norms.append(g.to(get_accelerator().device_name(), non_blocking=True).norm(2))
+                    # grad_norms.append(g.to(get_accelerator().device_name(), non_blocking=True).double().norm(2))
 
             # Sum across all model parallel GPUs.
             if len(grad_norms) == 0:
@@ -1689,8 +1690,8 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
         # release all the gradient since we have already created a necessary copy in dp_grad_partition
         self.zero_grad(set_to_none=True)
 
-        for grad in filter(lambda g: get_accelerator().on_accelerator(g), self.averaged_gradients[sub_group_id]):
-            grad.record_stream(get_accelerator().current_stream())
+        # for grad in filter(lambda g: get_accelerator().on_accelerator(g), self.averaged_gradients[sub_group_id]):
+        #     grad.record_stream(get_accelerator().current_stream())
 
         self.averaged_gradients[sub_group_id] = None
 
@@ -1967,8 +1968,9 @@ class DeepSpeedZeroOptimizer_Stage3(ZeROOptimizer):
         if partition_gradients:
             with get_accelerator().stream(self.reduce_and_partition_stream):
                 if hasattr(self.inf_or_nan_tracker, "logical_or_"):
-                    self.inf_or_nan_tracker.logical_or_(torch.isinf(self.grad_partitions_flat_buffer).any())
-                    self.inf_or_nan_tracker.logical_or_(torch.isnan(self.grad_partitions_flat_buffer).any())
+                    pass
+                    # self.inf_or_nan_tracker.logical_or_(torch.isinf(self.grad_partitions_flat_buffer).any())
+                    # self.inf_or_nan_tracker.logical_or_(torch.isnan(self.grad_partitions_flat_buffer).any())
                 else:
                     # logical_or_ not available in older versions of pytorch
                     self.inf_or_nan_tracker += torch.isinf(self.grad_partitions_flat_buffer).any()

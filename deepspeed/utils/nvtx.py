@@ -11,9 +11,9 @@ def instrument_w_nvtx(func):
     function call."""
 
     def wrapped_fn(*args, **kwargs):
-        get_accelerator().range_push(func.__qualname__)
+        # get_accelerator().range_push(func.__qualname__)
         ret_val = func(*args, **kwargs)
-        get_accelerator().range_pop()
+        # get_accelerator().range_pop()
         return ret_val
 
     return wrapped_fn

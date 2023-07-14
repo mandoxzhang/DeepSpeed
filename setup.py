@@ -169,6 +169,7 @@ for op_name, builder in ALL_OPS.items():
 
     # If op install enabled, add builder to extensions.
     if op_enabled(op_name) and op_compatible:
+        print(op_name)
         assert torch_available, f"Unable to pre-compile {op_name}, please first install torch"
         install_ops[op_name] = op_enabled(op_name)
         ext_modules.append(builder.builder())

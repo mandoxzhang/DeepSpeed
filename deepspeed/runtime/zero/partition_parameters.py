@@ -270,10 +270,10 @@ def get_all_subclasses(cls):
 def free_param(param: Parameter) -> None:
     """Free underlying storage of a parameter."""
     assert not param.ds_active_sub_modules, param.ds_summary()
-    if get_accelerator().on_accelerator(param.data):
-        # need to make sure that we don't free the parameter while it is still
-        # being used for computation
-        param.data.record_stream(get_accelerator().current_stream())
+    # if get_accelerator().on_accelerator(param.data):
+    #     # need to make sure that we don't free the parameter while it is still
+    #     # being used for computation
+    #     param.data.record_stream(get_accelerator().current_stream())
     # param.data doesn't store anything meaningful in partitioned state
     param.data = torch.empty(0, dtype=param.dtype, device=param.device)
     param.ds_status = ZeroParamStatus.NOT_AVAILABLE
@@ -840,7 +840,7 @@ class Init(InsertPostInitMethodToModuleSubClasses):
 
         # Local device is the device where the parameters are consumed, must be default device.
         # It is the device where parameters are fully instantiated using allgather
-        self.local_device = torch.device(get_accelerator().device_name(os.environ["LOCAL_RANK"]))
+        self.local_device = torch.device(get_accelerator().device_name(str(int(os.environ["LOCAL_RANK"]))))
         get_accelerator().set_device(self.local_device)
 
         self.quantized_weights = zero_quantized_weights

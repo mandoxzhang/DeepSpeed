@@ -44,6 +44,8 @@ def _validate_accelerator(accel_obj):
 
 def get_accelerator():
     global ds_accelerator
+    from .musa_accelerator import MUSA_Accelerator
+    ds_accelerator = MUSA_Accelerator()
     if ds_accelerator is not None:
         return ds_accelerator
 

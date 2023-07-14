@@ -36,10 +36,12 @@ class ZeRORuntimeException(Exception):
     pass
 
 
+# ZERO_SUPPORTED_OPTIMIZERS = [
+#     torch.optim.Adam, torch.optim.AdamW, FusedAdam, DeepSpeedCPUAdam, torch.optim.Adagrad, DeepSpeedCPUAdagrad
+# ]
 ZERO_SUPPORTED_OPTIMIZERS = [
-    torch.optim.Adam, torch.optim.AdamW, FusedAdam, DeepSpeedCPUAdam, torch.optim.Adagrad, DeepSpeedCPUAdagrad
+    torch.optim.Adam, torch.optim.AdamW
 ]
-
 # Add apex FusedAdam to supported list if apex is installed
 try:
     import apex

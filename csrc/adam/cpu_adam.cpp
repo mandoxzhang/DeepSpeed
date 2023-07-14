@@ -12,11 +12,11 @@
 #include <unordered_map>
 
 #if defined(__ENABLE_CUDA__)
-#include <cuda_runtime_api.h>
-#include "cublas_v2.h"
-#include "cuda.h"
-#include "curand.h"
-#include "custom_cuda_layers.h"
+// #include <cuda_runtime_api.h>
+// #include "cublas_v2.h"
+// #include "cuda.h"
+// #include "curand.h"
+// #include "custom_cuda_layers.h"
 #endif
 
 static std::unordered_map<int, std::shared_ptr<void>> s_optimizers;

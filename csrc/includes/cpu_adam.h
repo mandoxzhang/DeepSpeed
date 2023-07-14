@@ -13,11 +13,11 @@
 #include "simd.h"
 
 #if defined(__ENABLE_CUDA__)
-#include <cuda_fp16.h>
-#include <cuda_runtime_api.h>
-#include "cuda.h"
-#include "custom_cuda_layers.h"
-typedef __half ds_half_precision_t;
+// #include <cuda_fp16.h>
+// #include <cuda_runtime_api.h>
+// #include "cuda.h"
+// #include "custom_cuda_layers.h"
+typedef __half float;
 #else
 #include <cmath>
 typedef unsigned short ds_half_precision_t;
